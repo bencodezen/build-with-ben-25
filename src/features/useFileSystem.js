@@ -2,7 +2,7 @@ export const setupNewFile = async () => {
   const fileHandle = await getNewFileHandle()
 
   try {
-    await writeFile(
+    const writtenFile = await writeFile(
       fileHandle,
       JSON.stringify({
         animeShows: []
@@ -10,6 +10,7 @@ export const setupNewFile = async () => {
     )
 
     console.log('Successfully created file')
+    return writtenFile
   } catch (error) {
     console.error('Unable to create file', error)
   }
