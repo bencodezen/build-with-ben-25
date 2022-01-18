@@ -50,8 +50,8 @@ const addShow = async () => {
 }
 
 const chooseSaveFile = async () => {
-  const fileHandle = await chooseFile()
-  const file = await fileHandle.getFile()
+  userFile.value = await chooseFile()
+  const file = await userFile.value.getFile()
   const fileContents = JSON.parse(await file.text())
 
   animeShows.value = fileContents
