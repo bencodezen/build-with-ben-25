@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { chooseFile, setupNewFile, writeFile } from './features/useFileSystem'
+// import { get, set } from 'https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js'
 
 /**
  * Reactive Data
@@ -51,12 +52,34 @@ const addShow = async () => {
 
 const chooseSaveFile = async () => {
   userFile.value = await chooseFile()
+  // TODO: Update this set file value to IndexedDB
+  // await set('saveFile', userFile.value)
   const file = await userFile.value.getFile()
   const fileContents = JSON.parse(await file.text())
 
   animeShows.value = fileContents
   hasSaveFile.value = true
 }
+
+/**
+ * Lifecycle Hooks
+ */
+// onMounted(async () => {
+//   // TODO: Fix loading file from IndexedDB
+//   const localSaveFile = await get('saveFile')
+
+//   if (localSaveFile) {
+//     userFile.value = localSaveFile
+
+//     // userFile.value.queryPermission()
+//     // userFile.value.requestPermission()
+//     const file = await userFile.value.getFile()
+//     const fileContents = JSON.parse(await file.text())
+
+//     animeShows.value = fileContents
+//     hasSaveFile.value = true
+//   }
+// })
 </script>
 
 <template>
