@@ -10,9 +10,15 @@ export const setupNewFile = async () => {
     )
 
     console.log('Successfully created file')
-    return writtenFile
+    return {
+      status: 'success',
+      fileHandle: writtenFile
+    }
   } catch (error) {
     console.error('Unable to create file', error)
+    return {
+      status: 'error'
+    }
   }
 }
 

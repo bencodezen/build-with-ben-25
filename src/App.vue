@@ -21,8 +21,9 @@ const watchedShows = computed(() => {
  */
 const addSaveFile = async () => {
   const file = await setupNewFile()
-  console.log(file)
-  // hasSaveFile.value = true
+  if (file.status === 'success') {
+    hasSaveFile.value = true
+  }
 }
 
 const addShow = () => {
