@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { getNewFileHandle } from './features/useFileSystem'
 
+const hasSaveFile = ref(false)
 const newShow = ref('')
 const newShowStatus = ref('watching')
 
@@ -13,6 +15,15 @@ const currentlyWatchingShows = computed(() => {
 const watchedShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watched')
 })
+
+/**
+ * Methods
+ */
+const addSaveFile = async () => {
+  const saveFile = await getNewFileHandle()
+  console.log(saveFile)
+  // hasSaveFile.value = true
+}
 
 const addShow = () => {
   animeShows.value.push({
@@ -27,28 +38,34 @@ const addShow = () => {
 <template>
   <main>
     <h1>Anime Show Tracker</h1>
-    <form @submit.prevent>
-      <input type="text" placeholder="Show Name" v-model="newShow" />
-      <select name="show-status" id="show-status" v-model="newShowStatus">
-        <option value="watching" selected>Watching</option>
-        <option value="watched">Watched</option>
-      </select>
-      <button @click="addShow">Add Show</button>
-    </form>
-    <section class="anime-list">
-      <h2>Currently Watching</h2>
-      <ul>
-        <li v-for="show in currentlyWatchingShows">
+    <article v-if="hasSaveFile">
+      <form @submit.prevent>
+        <input type="text" placeholder="Show Name" v-model="newShow" />
+        <select name="show-status" id="show-status" v-model="newShowStatus">
+          <option value="watching" selected>Watching</option>
+          <option value="watched">Watched</option>
+        </select>
+        <button @click="addShow">Add Show</button>
+      </form>
+      <section class="anime-list">
+        <h2>Currently Watching</h2>
+        <ul>
+          <li v-for="show in currentlyWatchingShows">
+            {{ show }}
+          </li>
+        </ul>
+      </section>
+      <section class="anime-list">
+        <h2>Watched</h2>
+        <li v-for="show in watchedShows">
           {{ show }}
         </li>
-      </ul>
-    </section>
-    <section class="anime-list">
-      <h2>Watched</h2>
-      <li v-for="show in watchedShows">
-        {{ show }}
-      </li>
-    </section>
+      </section>
+    </article>
+    <article v-else>
+      <h2>Configure save file</h2>
+      <button @click="addSaveFile">Add save file</button>
+    </article>
   </main>
 </template>
 
