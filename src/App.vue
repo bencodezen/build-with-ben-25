@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { getNewFileHandle } from './features/useFileSystem'
+import { getNewFileHandle, writeFile } from './features/useFileSystem'
 
 const hasSaveFile = ref(false)
 const newShow = ref('')
@@ -20,8 +20,13 @@ const watchedShows = computed(() => {
  * Methods
  */
 const addSaveFile = async () => {
-  const saveFile = await getNewFileHandle()
-  console.log(saveFile)
+  const saveFileHandle = await getNewFileHandle()
+  await writeFile(
+    saveFileHandle,
+    JSON.stringify({
+      animeShows: animeShows.value
+    })
+  )
   // hasSaveFile.value = true
 }
 
