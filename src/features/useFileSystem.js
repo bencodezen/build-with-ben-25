@@ -1,3 +1,20 @@
+export const setupNewFile = async () => {
+  const fileHandle = await getNewFileHandle()
+
+  try {
+    await writeFile(
+      fileHandle,
+      JSON.stringify({
+        animeShows: []
+      })
+    )
+
+    console.log('Successfully created file')
+  } catch (error) {
+    console.error('Unable to create file', error)
+  }
+}
+
 export const getNewFileHandle = async () => {
   const options = {
     types: [
