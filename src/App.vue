@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { setupNewFile, writeFile } from './features/useFileSystem'
+import { chooseFile, setupNewFile, writeFile } from './features/useFileSystem'
 
 /**
  * Reactive Data
@@ -48,6 +48,15 @@ const addShow = async () => {
   newShow.value = ''
   newShowStatus.value = 'watching'
 }
+
+const chooseSaveFile = async () => {
+  const fileHandle = await chooseFile()
+  const file = await fileHandle.getFile()
+  const fileContents = JSON.parse(await file.text())
+
+  animeShows.value = fileContents
+  hasSaveFile.value = true
+}
 </script>
 
 <template>
@@ -81,7 +90,10 @@ const addShow = async () => {
     </article>
     <article v-else>
       <h2>Configure save file</h2>
-      <button @click="addSaveFile">Add save file</button>
+      <button @click="addSaveFile" style="margin-right: 10px">
+        Create save file
+      </button>
+      <button @click="chooseSaveFile">Use existing data</button>
     </article>
   </main>
 </template>

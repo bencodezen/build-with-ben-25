@@ -1,3 +1,9 @@
+export const chooseFile = async () => {
+  const [fileHandle] = await window.showOpenFilePicker()
+
+  return fileHandle
+}
+
 export const setupNewFile = async () => {
   const fileHandle = await getNewFileHandle()
 
