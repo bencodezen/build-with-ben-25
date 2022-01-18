@@ -1,13 +1,20 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { setupNewFile } from './features/useFileSystem'
+import { setupNewFile, writeFile } from './features/useFileSystem'
 
+/**
+ * Reactive Data
+ */
 const hasSaveFile = ref(false)
 const newShow = ref('')
 const newShowStatus = ref('watching')
+const userFile = ref(undefined)
 
 const animeShows = ref([])
 
+/**
+ * Computed Properties
+ */
 const currentlyWatchingShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watching')
 })
@@ -23,14 +30,21 @@ const addSaveFile = async () => {
   const file = await setupNewFile()
   if (file.status === 'success') {
     hasSaveFile.value = true
+    userFile.value = file.fileHandle
   }
 }
 
-const addShow = () => {
+const addShow = async () => {
+  // Update reactive data
   animeShows.value.push({
     show: newShow.value,
     status: newShowStatus.value
   })
+
+  // Save data to the file
+  await writeFile(userFile.value, JSON.stringify(animeShows.value))
+
+  // Reset value
   newShow.value = ''
   newShowStatus.value = 'watching'
 }
@@ -58,9 +72,11 @@ const addShow = () => {
       </section>
       <section class="anime-list">
         <h2>Watched</h2>
-        <li v-for="show in watchedShows">
-          {{ show }}
-        </li>
+        <ul>
+          <li v-for="show in watchedShows">
+            {{ show }}
+          </li>
+        </ul>
       </section>
     </article>
     <article v-else>
