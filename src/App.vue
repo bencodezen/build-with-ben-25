@@ -17,32 +17,15 @@ const newShow = ref('')
 const newShowStatus = ref('watching')
 const userFile = ref(undefined)
 const existingFile = ref(undefined)
-const animeCover = ref(undefined)
 
 const animeShows = ref([])
-const animeImages = ref([])
 
 /**
  * Computed Properties
  */
-const animeCovers = computed(() => {
-  return directoryFiles.value.filter(file => file.name.indexOf('.jpeg') > -1)
-})
-
 const currentlyWatchingShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watching')
 })
-
-const getFirstAnimeCover = async () => {
-  if (animeCovers.value.length > 0) {
-    const cover = await animeCovers.value[0].getFile()
-    const coverUrl = URL.createObjectURL(cover)
-
-    animeCover.value = coverUrl
-  } else {
-    animeCover.value = 'no image found'
-  }
-}
 
 const watchedShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watched')
@@ -112,10 +95,6 @@ const chooseSaveDirectory = async () => {
   }
 }
 
-const addCover = () => {
-  animeShows.value[0].cover = 'test'
-}
-
 const chooseSaveFile = async () => {
   userFile.value = await chooseFile()
   await set('saveFile', userFile.value)
@@ -157,11 +136,6 @@ onMounted(async () => {
 <template>
   <main>
     <h1>Anime Show Tracker</h1>
-    <button @click="addCover">Add Cover</button>
-    <h2>ImageList: {{ animeImages }}</h2>
-    <h2>Image: {{ animeCover }}</h2>
-    <img v-if="animeCover" :src="animeCover" alt="" />
-    <button @click="getFirstAnimeCover">Get Cover</button>
     <article v-if="hasSaveFile">
       <form @submit.prevent>
         <input type="text" placeholder="Show Name" v-model="newShow" />
