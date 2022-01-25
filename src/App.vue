@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, effect } from 'vue'
 import {
   chooseDirectory,
   chooseFile,
@@ -11,20 +11,37 @@ import { get, set } from 'https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js'
 /**
  * Reactive Data
  */
+const directoryFiles = ref([])
 const hasSaveFile = ref(false)
 const newShow = ref('')
 const newShowStatus = ref('watching')
 const userFile = ref(undefined)
 const existingFile = ref(undefined)
+const animeCover = ref(undefined)
 
 const animeShows = ref([])
 
 /**
  * Computed Properties
  */
+const animeCovers = computed(() => {
+  return directoryFiles.value.filter(file => file.name.indexOf('.jpeg') > -1)
+})
+
 const currentlyWatchingShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watching')
 })
+
+const getFirstAnimeCover = async () => {
+  if (animeCovers.value.length > 0) {
+    const cover = await animeCovers.value[0].getFile()
+    const coverUrl = URL.createObjectURL(cover)
+
+    animeCover.value = coverUrl
+  } else {
+    animeCover.value = 'no image found'
+  }
+}
 
 const watchedShows = computed(() => {
   return animeShows.value.filter(show => show.status === 'watched')
@@ -57,8 +74,8 @@ const addShow = async () => {
 }
 
 const chooseSaveDirectory = async () => {
-  const directoryFiles = await chooseDirectory()
-  const saveFile = directoryFiles.find(file => {
+  directoryFiles.value = await chooseDirectory()
+  const saveFile = directoryFiles.value.find(file => {
     return file.name.indexOf('.json') > -1
   })
 
@@ -115,6 +132,9 @@ onMounted(async () => {
 <template>
   <main>
     <h1>Anime Show Tracker</h1>
+    <h2>Image: {{ animeCover }}</h2>
+    <img v-if="animeCover" :src="animeCover" alt="" />
+    <button @click="getFirstAnimeCover">Get Cover</button>
     <article v-if="hasSaveFile">
       <form @submit.prevent>
         <input type="text" placeholder="Show Name" v-model="newShow" />
