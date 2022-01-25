@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { chooseFile, setupNewFile, writeFile } from './features/useFileSystem'
-// import { get, set } from 'https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js'
+import { get, set } from 'https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js'
 
 /**
  * Reactive Data
@@ -10,6 +10,7 @@ const hasSaveFile = ref(false)
 const newShow = ref('')
 const newShowStatus = ref('watching')
 const userFile = ref(undefined)
+const existingFile = ref(undefined)
 
 const animeShows = ref([])
 
@@ -52,8 +53,7 @@ const addShow = async () => {
 
 const chooseSaveFile = async () => {
   userFile.value = await chooseFile()
-  // TODO: Update this set file value to IndexedDB
-  // await set('saveFile', userFile.value)
+  await set('saveFile', userFile.value)
   const file = await userFile.value.getFile()
   const fileContents = JSON.parse(await file.text())
 
@@ -61,25 +61,32 @@ const chooseSaveFile = async () => {
   hasSaveFile.value = true
 }
 
+const useLastSession = async () => {
+  userFile.value = existingFile.value
+
+  const permission = await userFile.value.requestPermission({
+    mode: 'readwrite'
+  })
+
+  if (permission === 'granted') {
+    const file = await userFile.value.getFile()
+    const fileContents = JSON.parse(await file.text())
+
+    animeShows.value = fileContents
+    hasSaveFile.value = true
+  }
+}
+
 /**
  * Lifecycle Hooks
  */
-// onMounted(async () => {
-//   // TODO: Fix loading file from IndexedDB
-//   const localSaveFile = await get('saveFile')
+onMounted(async () => {
+  const localSaveFile = await get('saveFile')
 
-//   if (localSaveFile) {
-//     userFile.value = localSaveFile
-
-//     // userFile.value.queryPermission()
-//     // userFile.value.requestPermission()
-//     const file = await userFile.value.getFile()
-//     const fileContents = JSON.parse(await file.text())
-
-//     animeShows.value = fileContents
-//     hasSaveFile.value = true
-//   }
-// })
+  if (localSaveFile) {
+    existingFile.value = localSaveFile
+  }
+})
 </script>
 
 <template>
@@ -113,10 +120,17 @@ const chooseSaveFile = async () => {
     </article>
     <article v-else>
       <h2>Configure save file</h2>
+      <div v-if="existingFile">
+        <p>{{ existingFile.name }}</p>
+        <button @click="useLastSession" style="margin-right: 10px">
+          Use last session
+        </button>
+        <hr />
+      </div>
       <button @click="addSaveFile" style="margin-right: 10px">
         Create save file
       </button>
-      <button @click="chooseSaveFile">Use existing data</button>
+      <button @click="chooseSaveFile">Choose an existing file</button>
     </article>
   </main>
 </template>
