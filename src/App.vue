@@ -20,6 +20,7 @@ const existingFile = ref(undefined)
 const animeCover = ref(undefined)
 
 const animeShows = ref([])
+const animeImages = ref([])
 
 /**
  * Computed Properties
@@ -78,6 +79,9 @@ const chooseSaveDirectory = async () => {
   const saveFile = directoryFiles.value.find(file => {
     return file.name.indexOf('.json') > -1
   })
+  const imageFileList = directoryFiles.value.filter(file => {
+    return file.name.indexOf('.jpeg') > -1
+  })
 
   if (saveFile) {
     hasSaveFile.value = true
@@ -89,6 +93,27 @@ const chooseSaveDirectory = async () => {
     animeShows.value = fileContents
     hasSaveFile.value = true
   }
+
+  if (imageFileList) {
+    imageFileList.forEach(async file => {
+      const existingShow = animeShows.value.findIndex(show => {
+        return (
+          show.show.toLowerCase().replace(/ /g, '-') ===
+          file.name.replace('-cover.jpeg', '')
+        )
+      })
+
+      if (existingShow > -1) {
+        const fileContents = await file.getFile()
+        const fileUrl = URL.createObjectURL(fileContents)
+        animeShows.value[existingShow].cover = fileUrl
+      }
+    })
+  }
+}
+
+const addCover = () => {
+  animeShows.value[0].cover = 'test'
 }
 
 const chooseSaveFile = async () => {
@@ -132,6 +157,8 @@ onMounted(async () => {
 <template>
   <main>
     <h1>Anime Show Tracker</h1>
+    <button @click="addCover">Add Cover</button>
+    <h2>ImageList: {{ animeImages }}</h2>
     <h2>Image: {{ animeCover }}</h2>
     <img v-if="animeCover" :src="animeCover" alt="" />
     <button @click="getFirstAnimeCover">Get Cover</button>
@@ -148,7 +175,8 @@ onMounted(async () => {
         <h2>Currently Watching</h2>
         <ul>
           <li v-for="show in currentlyWatchingShows">
-            {{ show }}
+            <img :src="show.cover" />
+            {{ show.show }}
           </li>
         </ul>
       </section>
@@ -156,7 +184,8 @@ onMounted(async () => {
         <h2>Watched</h2>
         <ul>
           <li v-for="show in watchedShows">
-            {{ show }}
+            <img :src="show.cover" />
+            {{ show.show }}
           </li>
         </ul>
       </section>
@@ -196,5 +225,22 @@ onMounted(async () => {
 
 .anime-list {
   text-align: left;
+}
+
+.anime-list ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.anime-list li {
+  display: flex;
+  flex-direction: column;
+  max-width: 100px;
+  text-align: center;
+}
+
+.anime-list li img {
+  margin-bottom: 10px;
 }
 </style>
