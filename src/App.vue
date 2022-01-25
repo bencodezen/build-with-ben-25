@@ -1,6 +1,11 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { chooseFile, setupNewFile, writeFile } from './features/useFileSystem'
+import {
+  chooseDirectory,
+  chooseFile,
+  setupNewFile,
+  writeFile
+} from './features/useFileSystem'
 import { get, set } from 'https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js'
 
 /**
@@ -49,6 +54,24 @@ const addShow = async () => {
   // Reset value
   newShow.value = ''
   newShowStatus.value = 'watching'
+}
+
+const chooseSaveDirectory = async () => {
+  const directoryFiles = await chooseDirectory()
+  const saveFile = directoryFiles.find(file => {
+    return file.name.indexOf('.json') > -1
+  })
+
+  if (saveFile) {
+    hasSaveFile.value = true
+    userFile.value = saveFile
+
+    const file = await userFile.value.getFile()
+    const fileContents = JSON.parse(await file.text())
+
+    animeShows.value = fileContents
+    hasSaveFile.value = true
+  }
 }
 
 const chooseSaveFile = async () => {
@@ -121,10 +144,9 @@ onMounted(async () => {
     <article v-else>
       <section style="border-bottom: 1px solid #222; padding-bottom: 30px">
         <h2>Configure directory</h2>
-        <button @click="addSaveFile" style="margin-right: 10px">
-          Create a directory
+        <button @click="chooseSaveDirectory">
+          Choose an existing directory
         </button>
-        <button @click="chooseSaveFile">Choose an existing directory</button>
       </section>
       <h2>Configure save file</h2>
       <div v-if="existingFile">

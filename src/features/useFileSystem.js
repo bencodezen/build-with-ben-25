@@ -1,3 +1,19 @@
+export const chooseDirectory = async () => {
+  const dirHandle = await window.showDirectoryPicker()
+  const filePromises = []
+  for await (const entry of dirHandle.values()) {
+    if (entry.kind !== 'file') {
+      break
+    }
+
+    const fileHandle = await dirHandle.getFileHandle(entry.name)
+
+    filePromises.push(fileHandle)
+  }
+
+  return filePromises
+}
+
 export const chooseFile = async () => {
   const [fileHandle] = await window.showOpenFilePicker()
 
