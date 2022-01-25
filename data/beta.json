@@ -1,1 +1,12 @@
-[{"show":"One Piece","status":"watching"},{"show":"Naruto","status":"watched"}]
+[
+  {
+    "show": "One Piece",
+    "status": "watching",
+    "imageSrc": "https://en.wikipedia.org/wiki/One_Piece"
+  },
+  {
+    "show": "Naruto",
+    "status": "watched",
+    "imageSrc": "https://en.wikipedia.org/wiki/Naruto"
+  }
+]
