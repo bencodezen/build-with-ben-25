@@ -119,6 +119,13 @@ onMounted(async () => {
       </section>
     </article>
     <article v-else>
+      <section style="border-bottom: 1px solid #222; padding-bottom: 30px">
+        <h2>Configure directory</h2>
+        <button @click="addSaveFile" style="margin-right: 10px">
+          Create a directory
+        </button>
+        <button @click="chooseSaveFile">Choose an existing directory</button>
+      </section>
       <h2>Configure save file</h2>
       <div v-if="existingFile">
         <p>{{ existingFile.name }}</p>
